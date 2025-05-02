@@ -2,8 +2,9 @@ pipeline {
     agent any
     
     environment {
-        DOCKER_REGISTRY = "docker.io"
+        // DOCKER_REGISTRY = "docker.io"
         DOCKER_IMAGE = "jeyz9/springboot-demo"
+        DOCKER_TAG = "Latest"
         K8S_DEPLOYMENT_FILE = "k8s/deployment.yaml"
     }
     
@@ -20,16 +21,26 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    docker.build("${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest")
+                    // docker.build("${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest")
+                    // docker.build("jeyz9/springboot-demo:latest")
+                    sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
                 }
             }
         }
         
         stage('Test') {
             steps {
-                script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub_credentials') {
-                        docker.image("${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest").push()
+                // script {
+                //     docker.withRegistry('https://registry.hub.docker.com', 'dockerhub_credentials') {
+                //         docker.image("${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest").push()
+                //     }
+                // }
+                withCredentials([usernamePassword(credentialsId: 'dockerhub_credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    script {
+                        sh """
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
+                        """
                     }
                 }
             }
