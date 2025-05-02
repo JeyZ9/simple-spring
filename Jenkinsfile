@@ -52,7 +52,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    sh "kubectl apply -f ${K8S_DEPLOYMENT_FILE}"
+                    sh "kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false"
                     // sh "kubectl apply -f $(find k8s/ -name '*.yaml')"
                 }
             }
