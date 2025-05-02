@@ -6,6 +6,7 @@ pipeline {
         DOCKER_IMAGE = "jeyz9/springboot-demo"
         DOCKER_TAG = "Latest"
         K8S_DEPLOYMENT_FILE = "k8s/deployment.yaml"
+        KUBECONFIG = '/path/to/kubeconfig'
     }
     
     stages {
@@ -52,8 +53,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    sh "kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false"
-                    // sh "kubectl apply -f $(find k8s/ -name '*.yaml')"
+                    sh "export KUBECONFIG=${KUBECONFIG} && kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false"
                 }
             }
         }
