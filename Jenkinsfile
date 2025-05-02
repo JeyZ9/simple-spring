@@ -12,7 +12,8 @@ pipeline {
             steps {
                 // checkout scm
                 // git branch: 'main', url: 'https://github.com/JeyZ9/simple-spring.git'
-                git branch: 'main', credentialsId: 'github', url: 'https://github.com/JeyZ9/simple-spring.git'
+                git branch: 'main'
+                url: 'https://github.com/JeyZ9/simple-spring.git'
             }
         }
         
