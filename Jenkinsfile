@@ -1,26 +1,53 @@
 pipeline {
     agent any
+    
+    environment {
+        DOCKER_REGISTRY = "docker.io"
+        DOCKER_IMAGE = "jeyz9/springboot-demo"
+        K8S_DEPLOYMENT_FILE = "k8s/deployment.yaml"
+    }
+    
     stages {
-        stage('Build') {
+        stage('Clone Repository') {
             steps {
-                sh 'mvn clean package'
+                // checkout scm
+                git branch: 'main', url: 'https://github.com/JeyZ9/simple-spring.git'
             }
         }
-        stage('Docker Build') {
+        
+        stage('Build Docker Image') {
             steps {
-                sh 'docker build -t demo-app:latest .'
+                script {
+                    docker.build("${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest")
+                }
             }
         }
-        stage('Docker Push') {
+        
+        stage('Push Docker Image') {
             steps {
-                sh 'docker tag demo-app:latest your_dockerhub_username/demo-app:latest'
-                sh 'docker push your_dockerhub_username/demo-app:latest'
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub_credentials') {
+                        docker.image("${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest").push()
+                    }
+                }
             }
         }
+
         stage('Deploy to Kubernetes') {
             steps {
-                sh 'kubectl apply -f k8s/'
+                script {
+                    sh "kubectl apply -f ${K8S_DEPLOYMENT_FILE}"
+                }
             }
+        }
+    }
+    
+    post {
+        success {
+            echo 'Deployment succeeded!'
+        }
+        failure {
+            echo 'Deployment failed.'
         }
     }
 }
