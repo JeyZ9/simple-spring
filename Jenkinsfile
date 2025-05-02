@@ -35,13 +35,16 @@ pipeline {
                 //         docker.image("${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest").push()
                 //     }
                 // }
+                // withCredentials([usernamePassword(credentialsId: 'dockerhub_credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                //     script {
+                //         sh """
+                //         echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                //         docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
+                //         """
+                //     }
+                // }
                 withCredentials([usernamePassword(credentialsId: 'dockerhub_credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    script {
-                        sh """
-                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                        docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
-                        """
-                    }
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
                 }
             }
         }
