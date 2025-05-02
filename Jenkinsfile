@@ -8,7 +8,7 @@ pipeline {
     }
     
     stages {
-        stage('Clone Repository') {
+        stage('Clone') {
             steps {
                 // checkout scm
                 // git branch: 'main', url: 'https://github.com/JeyZ9/simple-spring.git'
@@ -16,7 +16,7 @@ pipeline {
             }
         }
         
-        stage('Build Docker Image') {
+        stage('Build') {
             steps {
                 script {
                     docker.build("${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest")
@@ -24,7 +24,7 @@ pipeline {
             }
         }
         
-        stage('Push Docker Image') {
+        stage('Test') {
             steps {
                 script {
                     docker.withRegistry('https://registry.hub.docker.com', 'dockerhub_credentials') {
@@ -34,7 +34,7 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Deploy') {
             steps {
                 script {
                     sh "kubectl apply -f ${K8S_DEPLOYMENT_FILE}"
