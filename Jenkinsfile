@@ -5,7 +5,7 @@ pipeline {
         DOCKER_IMAGE = "jeyz9/springboot-demo"
         DOCKER_TAG = "Latest"
         K8S_DEPLOYMENT_FILE = "k8s/deployment.yaml"
-        KUBECONFIG = '/path/to/kubeconfig'
+        KUBECONFIG = '/home/vagrant/.kube/config'
     }
     
     stages {
@@ -31,10 +31,19 @@ pipeline {
             }
         }
 
+        stage('Debug K8s Context') {
+            steps {
+                sh "export KUBECONFIG=${KUBECONFIG} && kubectl config current-context || echo 'Config not working'"
+            }
+        }
+
         stage('Deploy') {
             steps {
-                script {
-                    sh "export KUBECONFIG=${KUBECONFIG} && kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false"
+                // script {
+                //     sh "export KUBECONFIG=${KUBECONFIG} && kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false"
+                // }
+                withEnv(["KUBECONFIG=${KUBECONFIG}"]) {
+                    sh "kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false"
                 }
             }
         }
