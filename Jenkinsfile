@@ -42,9 +42,14 @@ pipeline {
                 // script {
                 //     sh "export KUBECONFIG=${KUBECONFIG} && kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false"
                 // }
-                withEnv(["KUBECONFIG=${KUBECONFIG}"]) {
-                    sh "kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false"
-                }
+                // withEnv(["KUBECONFIG=${KUBECONFIG}"]) {
+                //     sh "kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false"
+                // }
+                        sh '''
+                            chmod 644 /home/vagrant/.kube/config || true
+                            export KUBECONFIG=/home/vagrant/.kube/config
+                        '''
+                    }
             }
         }
     }
