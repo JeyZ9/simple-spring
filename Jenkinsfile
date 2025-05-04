@@ -32,13 +32,24 @@ pipeline {
             }
         }
 
+        stage('Setup Kubeconfig') {
+            steps {
+                sh '''
+                    sudo mkdir -p /var/lib/jenkins/.kube
+                    sudo cp /home/vagrant/.kube/config /var/lib/jenkins/.kube/config
+                    sudo chown -R jenkins:jenkins /var/lib/jenkins/.kube
+                    sudo chmod 600 /var/lib/jenkins/.kube/config
+                '''
+            }
+        }
+
         stage('Debug K8s Context') {
             steps {
                 sh "export KUBECONFIG=${KUBECONFIG} && kubectl config current-context || echo 'Config not working'"
             }
         }
 
-                stage('Docker Login') {
+         stage('Docker Login') {
             steps {
                 withCredentials([usernamePassword(credentialsId: "5eba72a1-239e-4534-8fc0-4d12515a4159", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
