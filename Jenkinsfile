@@ -6,7 +6,7 @@ pipeline {
         DOCKER_TAG = "Latest"
         K8S_DEPLOYMENT_FILE = "k8s/deployment.yaml"
         KUBECONFIG = '/home/vagrant/.kube/config'
-        DOCKER_ID = "5eba72a1-239e-4534-8fc0-4d12515a4159"
+        // DOCKER_ID = "5eba72a1-239e-4534-8fc0-4d12515a4159"
     }
     
     stages {
@@ -26,7 +26,7 @@ pipeline {
         
         stage('Test') {
             steps {
-                withCredentials([usernamePassword(credentialsId: "${DOCKER_ID}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                withCredentials([usernamePassword(credentialsId: "5eba72a1-239e-4534-8fc0-4d12515a4159", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
                 }
             }
