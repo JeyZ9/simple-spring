@@ -5,7 +5,7 @@ pipeline {
         DOCKER_IMAGE = "jeyz9/springboot-demo"
         DOCKER_TAG = "Latest"
         K8S_DEPLOYMENT_FILE = "k8s/deployment.yaml"
-        KUBECONFIG = '/home/vagrant/.kube/config'
+        KUBECONFIG = '/var/lib/jenkins/.kube/config'
         // DOCKER_ID = "5eba72a1-239e-4534-8fc0-4d12515a4159"
     }
     
@@ -48,7 +48,7 @@ pipeline {
 
         stage('Deploy to Minikube') {
             steps {
-                withEnv(["KUBECONFIG=/var/lib/jenkins/.kube/config"]) {
+                withEnv(["KUBECONFIG=${KUBECONFIG}"]) {
                     sh "kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false"
                 }
             }
