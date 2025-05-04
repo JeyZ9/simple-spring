@@ -38,6 +38,24 @@ pipeline {
             }
         }
 
+                stage('Docker Login') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: "5eba72a1-239e-4534-8fc0-4d12515a4159", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                }
+            }
+        }
+
+        stage('Prepare Kubeconfig') {
+            steps {
+                sh '''
+                    mkdir -p ~/.kube
+                    cp -f $(minikube kubeconfig) ~/.kube/config
+                    chmod 600 ~/.kube/config
+                '''
+            }
+        }
+
         stage('Deploy') {
             steps {
                 // script {
