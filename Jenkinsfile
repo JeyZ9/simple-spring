@@ -46,35 +46,32 @@ pipeline {
             }
         }
 
-        stage('Prepare Kubeconfig') {
+        stage('Deploy to Minikube') {
             steps {
-                sh '''
-                    sudo mkdir -p /var/lib/jenkins/.kube
-                    sudo cp /home/vagrant/.kube/config /var/lib/jenkins/.kube/config
-                    sudo chown jenkins:jenkins /var/lib/jenkins/.kube/config
-                    sudo chmod 600 /var/lib/jenkins/.kube/config
-                '''
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                // script {
-                //     sh "export KUBECONFIG=${KUBECONFIG} && kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false"
-                // }
-                // withEnv(["KUBECONFIG=${KUBECONFIG}"]) {
-                //     sh "kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false"
-                // }
-                        // sh '''
-                        //     chmod 644 /home/vagrant/.kube/config || true
-                        //     export KUBECONFIG=/home/vagrant/.kube/config
-                        // '''
-
                 withEnv(["KUBECONFIG=/var/lib/jenkins/.kube/config"]) {
                     sh "kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false"
                 }
             }
         }
+
+        // stage('Deploy') {
+        //     steps {
+        //         // script {
+        //         //     sh "export KUBECONFIG=${KUBECONFIG} && kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false"
+        //         // }
+        //         // withEnv(["KUBECONFIG=${KUBECONFIG}"]) {
+        //         //     sh "kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false"
+        //         // }
+        //                 // sh '''
+        //                 //     chmod 644 /home/vagrant/.kube/config || true
+        //                 //     export KUBECONFIG=/home/vagrant/.kube/config
+        //                 // '''
+
+        //         withEnv(["KUBECONFIG=/var/lib/jenkins/.kube/config"]) {
+        //             sh "kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false"
+        //         }
+        //     }
+        // }
     }
     
     post {
