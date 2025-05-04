@@ -12,6 +12,7 @@ spec:
       labels:
         app: demo-app
     spec:
+      serviceAccountName: jenkins
       containers:
         - name: demo-app
           image: jeyz9/springboot-demo:latest
