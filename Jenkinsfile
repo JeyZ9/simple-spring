@@ -49,9 +49,10 @@ pipeline {
         stage('Prepare Kubeconfig') {
             steps {
                 sh '''
-                    mkdir -p ~/.kube
-                    cp -f $(minikube kubeconfig) ~/.kube/config
-                    chmod 600 ~/.kube/config
+                    sudo mkdir -p /var/lib/jenkins/.kube
+                    sudo cp /home/vagrant/.kube/config /var/lib/jenkins/.kube/config
+                    sudo chown jenkins:jenkins /var/lib/jenkins/.kube/config
+                    sudo chmod 600 /var/lib/jenkins/.kube/config
                 '''
             }
         }
