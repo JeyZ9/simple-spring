@@ -1,30 +1,26 @@
 pipeline {
     agent any
-    
+
     environment {
         DOCKER_IMAGE = "jeyz9/springboot-demo"
-        DOCKER_TAG = "Latest"
+        DOCKER_TAG = "latest"
         K8S_DEPLOYMENT_FILE = "k8s/deployment.yaml"
-        KUBECONFIG = '/var/lib/jenkins/.kube/config'
-        // DOCKER_ID = "5eba72a1-239e-4534-8fc0-4d12515a4159"
     }
-    
+
     stages {
         stage('Clone') {
             steps {
                 git branch: 'main', url: 'https://github.com/JeyZ9/simple-spring.git'
             }
         }
-        
-        stage('Build') {
+
+        stage('Build Image') {
             steps {
-                script {
-                    sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
-                }
+                sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
             }
         }
-        
-        stage('Test') {
+
+        stage('Docker Login') {
             steps {
                 withCredentials([usernamePassword(credentialsId: "5eba72a1-239e-4534-8fc0-4d12515a4159", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
@@ -32,65 +28,30 @@ pipeline {
             }
         }
 
-        stage('Setup Kubeconfig') {
+        stage('Push Image') {
             steps {
-                sh '''
-                    sudo mkdir -p /var/lib/jenkins/.kube
-                    sudo cp /home/vagrant/.kube/config /var/lib/jenkins/.kube/config
-                    sudo chown -R jenkins:jenkins /var/lib/jenkins/.kube
-                    sudo chmod 600 /var/lib/jenkins/.kube/config
-                '''
+                sh "docker push ${DOCKER_IMAGE}:${DOCKER_TAG}"
             }
         }
 
-        stage('Debug K8s Context') {
+        stage('Deploy to K8s') {
             steps {
-                sh "export KUBECONFIG=${KUBECONFIG} && kubectl config current-context || echo 'Config not working'"
-            }
-        }
-
-         stage('Docker Login') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: "5eba72a1-239e-4534-8fc0-4d12515a4159", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+                    sh '''
+                        export KUBECONFIG=$KUBECONFIG
+                        kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false
+                    '''
                 }
             }
         }
-
-        stage('Deploy to Minikube') {
-            steps {
-                withEnv(["KUBECONFIG=${KUBECONFIG}"]) {
-                    sh "kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false"
-                }
-            }
-        }
-
-        // stage('Deploy') {
-        //     steps {
-        //         // script {
-        //         //     sh "export KUBECONFIG=${KUBECONFIG} && kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false"
-        //         // }
-        //         // withEnv(["KUBECONFIG=${KUBECONFIG}"]) {
-        //         //     sh "kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false"
-        //         // }
-        //                 // sh '''
-        //                 //     chmod 644 /home/vagrant/.kube/config || true
-        //                 //     export KUBECONFIG=/home/vagrant/.kube/config
-        //                 // '''
-
-        //         withEnv(["KUBECONFIG=/var/lib/jenkins/.kube/config"]) {
-        //             sh "kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false"
-        //         }
-        //     }
-        // }
     }
-    
+
     post {
         success {
-            echo 'Deployment succeeded!'
+            echo '✅ Deployment succeeded!'
         }
         failure {
-            echo 'Deployment failed.'
+            echo '❌ Deployment failed.'
         }
     }
 }
