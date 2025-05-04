@@ -64,10 +64,14 @@ pipeline {
                 // withEnv(["KUBECONFIG=${KUBECONFIG}"]) {
                 //     sh "kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false"
                 // }
-                        sh '''
-                            chmod 644 /home/vagrant/.kube/config || true
-                            export KUBECONFIG=/home/vagrant/.kube/config
-                        '''
+                        // sh '''
+                        //     chmod 644 /home/vagrant/.kube/config || true
+                        //     export KUBECONFIG=/home/vagrant/.kube/config
+                        // '''
+
+                withEnv(["KUBECONFIG=/var/lib/jenkins/.kube/config"]) {
+                    sh "kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false"
+                }
             }
         }
     }
