@@ -36,14 +36,14 @@ pipeline {
 
         stage('Deploy to K8s') {
             steps {
-                // withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-                //     sh '''
-                //         export KUBECONFIG=$KUBECONFIG
-                //         kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false
-                //     '''
-                // }
-                sh "kubectl apply -f kubeconfig-jenkins"
-                sh "kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false"
+                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+                    sh '''
+                        export KUBECONFIG=$KUBECONFIG
+                        kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false
+                    '''
+                }
+                // sh "kubectl apply -f kubeconfig-jenkins"
+                // sh "kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false"
             }
         }
     }
