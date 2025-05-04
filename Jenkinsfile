@@ -50,7 +50,6 @@ pipeline {
                             chmod 644 /home/vagrant/.kube/config || true
                             export KUBECONFIG=/home/vagrant/.kube/config
                         '''
-                    }
             }
         }
     }
