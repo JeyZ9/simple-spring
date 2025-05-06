@@ -42,8 +42,6 @@ pipeline {
                         kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false
                     '''
                 }
-                // sh "kubectl apply -f kubeconfig-jenkins"
-                // sh "kubectl apply -f ${K8S_DEPLOYMENT_FILE} --validate=false"
             }
         }
     }
